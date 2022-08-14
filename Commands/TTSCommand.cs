@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 
 namespace KrTTSBot.Commands
 {
@@ -8,25 +7,36 @@ namespace KrTTSBot.Commands
     {
         [Command("join")]
         public async Task JoinCommand()
-            => await Handlers.AudioHandler.JoinAsync(Context.Guild, Context.User as IVoiceState,
+        {
+            await Handlers.AudioHandler.JoinAsync(Context.Guild, Context.User as IVoiceState,
                 Context.Channel as ITextChannel);
+        }
 
         [Command("leave")]
         public async Task LeaveCommand()
-            => await Handlers.AudioHandler.LeaveAsync(Context.Guild);
-
+        { 
+            await Handlers.AudioHandler.LeaveAsync(Context.Guild, Context.User as IVoiceState,
+                Context.Channel as ITextChannel);
+        }
         [Command("tts")]
         public async Task PlayCommand([Remainder] string text)
         {
-            Console.WriteLine("잉?");
-            await Handlers.AudioHandler.PlayAsync(Context.User as SocketGuildUser, Context.Guild, Context.Channel as ITextChannel, text);
+            await Handlers.AudioHandler.PlayAsync(Context.Guild, Context.User as IVoiceState,
+                Context.Channel as ITextChannel, text);
         }
 
-        [Command("kr")]
+        [Command("말")]
         public async Task KrCommand()
         {
-            Console.WriteLine("잉?");
-            await Handlers.AudioHandler.PlayAsync(Context.User as SocketGuildUser, Context.Guild, Context.Channel as ITextChannel, Context.Message.ToString());
+            await Handlers.AudioHandler.PlayAsync(Context.Guild, Context.User as IVoiceState,
+                Context.Channel as ITextChannel, Context.Message.Content, Handlers.ConfigHandler.Config.KrPrefix.Length + 1);
+        }
+
+        [Command("stop")]
+        public async Task StopCommand()
+        {
+            await Handlers.AudioHandler.StopAsnyc(Context.Guild, Context.User as IVoiceState,
+                Context.Channel as ITextChannel);
         }
 
     }
