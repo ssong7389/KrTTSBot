@@ -1,12 +1,10 @@
-﻿using Discord;
-using Victoria;
-using Amazon.Polly;
-using Victoria.Enums;
-using Discord.WebSocket;
-using Victoria.EventArgs;
+﻿using Amazon.Polly;
 using Amazon.Polly.Model;
+using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
+using Victoria;
+using Victoria.Enums;
 
 namespace KrTTSBot.Handlers
 {
@@ -19,30 +17,42 @@ namespace KrTTSBot.Handlers
 
         public static async Task JoinAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel)
         {
-            if (_lavaNode.HasPlayer(guild))
-            {
-                await channel.SendMessageAsync("이미 음성채팅에 연결되어 있어요");
-                return;
-            } 
             if (voiceState.VoiceChannel is null)
             {
-                await channel.SendMessageAsync("먼저 음성채팅에 들어가 주세요");
+                await channel.SendMessageAsync("음성 채널에 먼저 참가해주세요.");
                 return;
+            }
+            else
+            {
+                if (!_lavaNode.HasPlayer(guild))
+                {
+                    try
+                    {
+                        await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
+                    }
+                }
+                else if (voiceState.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
+                {
+                    await channel.SendMessageAsync("다른 음성 채널에서 사용 중입니다.");
+                    return;
+                }
             }
 
-            try
-            {
-                await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
-                return;
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
-            }
         }
 
-        public static async Task LeaveAsync(IGuild guild)
+        public static async Task LeaveAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel)
         {
+            if (voiceState.VoiceChannel is null) return;
+            if (voiceState.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
+            {
+                await channel.SendMessageAsync("같은 음성 채널에 참가해주세요.");
+                return;
+            }
             try
             {
                 var player = _lavaNode.GetPlayer(guild);
@@ -58,7 +68,7 @@ namespace KrTTSBot.Handlers
 
         public static async Task MakeTTS(string text)
         {
-            Console.WriteLine(TTSPath);
+
             string AWSAccessKeyId = ConfigHandler.Config.AWSAccessKeyId;
             string AWSSecretKey = ConfigHandler.Config.AWSSecretKey;
             var pc = new AmazonPollyClient(AWSAccessKeyId, AWSSecretKey);
@@ -91,36 +101,87 @@ namespace KrTTSBot.Handlers
             return;
         }
 
-        public static async Task PlayAsync(SocketGuildUser user, IGuild guild, ITextChannel channel, string text)
+        public static async Task PlayAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel, string text)
         {
-            Console.WriteLine(text);
-            if (user.VoiceChannel is null)
-                await channel.SendMessageAsync("음성 채널에 먼저 참가해주세요.");
-            if (!_lavaNode.HasPlayer(guild))
-                await JoinAsync(guild, user.VoiceState, channel);
-            if(user.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
-            {
-                await channel.SendMessageAsync("다른 음성 채널에서 사용 중입니다.");
-            }
+
+            await JoinAsync(guild, voiceState, channel);
             await MakeTTS(text);
 
             try
             {
                 var player = _lavaNode.GetPlayer(guild);
                 LavaTrack track;
-                var search = await _lavaNode.SearchAsync(Victoria.Responses.Search.SearchType.Direct , @"C:\Users\sych7\Desktop\CSharp\Discord\KrTTSBot\KrTTSBot\bin\Debug\net6.0\Resources\tts.mp3");
+                var search = await _lavaNode.SearchAsync(Victoria.Responses.Search.SearchType.Direct , Path.GetFullPath(TTSPath));
                 track = search.Tracks.FirstOrDefault();
                 if(player.PlayerState is PlayerState.Stopped)
                 {
                     player.Queue.Enqueue(track);
                 }
-
                 await player.PlayAsync(track);
             }
             catch(Exception ex)
             {
                 Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
                 return;
+            }
+        }
+
+        public static async Task PlayAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel, string text, int krLength)
+        {
+
+            text = text.Substring(krLength);
+            await JoinAsync(guild, voiceState, channel);
+            await MakeTTS(text);
+
+            try
+            {
+                var player = _lavaNode.GetPlayer(guild);
+                LavaTrack track;
+                var search = await _lavaNode.SearchAsync(Victoria.Responses.Search.SearchType.Direct, Path.GetFullPath(TTSPath));
+                track = search.Tracks.FirstOrDefault();
+                if (player.PlayerState is PlayerState.Stopped)
+                {
+                    player.Queue.Enqueue(track);
+                }
+
+                await player.PlayAsync(track);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
+                return;
+            }
+        }
+
+        public static async Task StopAsnyc(IGuild guild, IVoiceState voiceState, ITextChannel channel)
+        {
+            var player = _lavaNode.GetPlayer(guild);
+
+            if (voiceState.VoiceChannel is null)
+            {
+                await channel.SendMessageAsync("음성 채널에 먼저 참가해주세요.");
+                return;
+            }
+            else
+            {
+                if (!_lavaNode.HasPlayer(guild))
+                {
+                        return;
+                }
+                else if (voiceState.VoiceChannel != player.VoiceChannel)
+                {
+                    await channel.SendMessageAsync("다른 음성 채널에서 사용 중입니다.");
+                    return;
+                }
+                else if (voiceState.VoiceChannel == player.VoiceChannel)
+                {
+                    if (_lavaNode.GetPlayer(guild).PlayerState is PlayerState.Playing)
+                    {
+                        await player.StopAsync();
+                        await channel.SendMessageAsync("음성 출력을 중단하였습니다.");
+                    }
+                    else return;
+                }
             }
         }
 
