@@ -1,8 +1,8 @@
 ﻿using Discord;
-using Victoria;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Victoria;
 
 namespace KrTTSBot.Handlers
 {
@@ -27,7 +27,6 @@ namespace KrTTSBot.Handlers
             };
 
             _client.Ready += OnReady;
-
             _client.MessageReceived += OnMessageReceived;
             return Task.CompletedTask;
         }
@@ -35,45 +34,33 @@ namespace KrTTSBot.Handlers
         {
 
             var message = msg as SocketUserMessage;
-            // var context = new SocketCommandContext(_client, message);
-            if (message.Author.IsBot || message.Channel is IDMChannel) return;
-
+            var context = new SocketCommandContext(_client, message);
             var argPos = 0;
-            //if (message.Content.Substring(0,2) == ConfigHandler.Config.KrPrefix)
-            //{
-            //    Console.WriteLine(message.Content.Substring(0, 2));
-            //    Console.WriteLine(message.Content);
-            //    await _commandService.ExecuteAsync(context, "tts", ServiceHandler.ServiceProvider);
-            //}
-            //if (!(message.HasStringPrefix(ConfigHandler.Config.Prefix, ref argPos)) ||
-            //    message.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
+            IResult result;
+            if (message.Author.IsBot || message.Channel is IDMChannel 
+                || message.HasMentionPrefix(_client.CurrentUser, ref argPos)) return;
 
 
-            //var result = await _commandService.ExecuteAsync(context, argPos, ServiceHandler.ServiceProvider);
-            //if (!result.IsSuccess)
-            //{
-            //    if (result.Error == CommandError.UnknownCommand) return;
-            //}
-            if(!(message.HasStringPrefix(ConfigHandler.Config.Prefix, ref argPos))){
-                if(message.HasMentionPrefix(_client.CurrentUser, ref argPos) || message.Author.IsBot) return;
-                else
+            if (!(message.HasStringPrefix(ConfigHandler.Config.Prefix, ref argPos)))
+            {
+                var krLength = ConfigHandler.Config.KrPrefix.Length;
+                if (message.Content.Substring(0, krLength+1) == ConfigHandler.Config.KrPrefix + " ")
                 {
-                    if (message.ToString().Substring(0, 4) == "tts ")
-                    {
-                        var context = new SocketCommandContext(_client, message);
-                        Console.WriteLine("in 말ㄹ");
-                        await _commandService.ExecuteAsync(
-                            context: context,
-                            input: "kr",
-                            services: ServiceHandler.ServiceProvider);
-                    }
+                    result = await _commandService.ExecuteAsync(context, "말", ServiceHandler.ServiceProvider);
                 }
+                else return;
+
             }
             else
             {
-                var context = new SocketCommandContext(_client, message);
-                await _commandService.ExecuteAsync(context, argPos, ServiceHandler.ServiceProvider);
+                result = await _commandService.ExecuteAsync(context, argPos, ServiceHandler.ServiceProvider);
+            };
+
+            if (!result.IsSuccess)
+            {
+                if (result.Error == CommandError.UnknownCommand) return;
             }
+
         }
 
     
@@ -91,8 +78,8 @@ namespace KrTTSBot.Handlers
 
             Console.WriteLine($"[{DateTime.Now}\t(READY)\tBot is Ready");
             await _client.SetStatusAsync(Discord.UserStatus.Online);
-            await _client.SetGameAsync($"Prefix: {ConfigHandler.Config.Prefix}",
-                streamUrl: null, ActivityType.Listening);
+            await _client.SetGameAsync($"{ConfigHandler.Config.KrPrefix} \"메시지\" 로 말하기 / Prefix: {ConfigHandler.Config.Prefix}",
+                streamUrl: null, ActivityType.Playing);
         }
 
     }
