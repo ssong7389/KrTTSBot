@@ -13,7 +13,7 @@ namespace KrTTSBot.Handlers
         private static readonly LavaNode _lavaNode = ServiceHandler.ServiceProvider.GetRequiredService<LavaNode>();
         private static string ResourcesFolder = "Resources";
         private static string TTS = "tts.mp3";
-        private static string TTSPath =  ResourcesFolder + "/" + TTS;
+
 
         public static async Task JoinAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel)
         {
@@ -66,7 +66,7 @@ namespace KrTTSBot.Handlers
             }
         }
 
-        public static async Task MakeTTS(string text)
+        public static async Task MakeTTS(string text, IGuild guild)
         {
 
             string AWSAccessKeyId = ConfigHandler.Config.AWSAccessKeyId;
@@ -86,8 +86,13 @@ namespace KrTTSBot.Handlers
             {
                 Console.WriteLine("Http Error");
                 return;
-            }           
+            }
 
+            string guildFolder = GetGuildFolderPath(guild);
+            if (!Directory.Exists(guildFolder))
+                Directory.CreateDirectory(guildFolder);
+
+            string TTSPath = guildFolder + "/" + TTS;
             if (File.Exists(TTSPath))
             {
                 File.Delete(TTSPath);
@@ -105,12 +110,13 @@ namespace KrTTSBot.Handlers
         {
 
             await JoinAsync(guild, voiceState, channel);
-            await MakeTTS(text);
+            await MakeTTS(text, guild);
 
             try
             {
                 var player = _lavaNode.GetPlayer(guild);
                 LavaTrack track;
+                string TTSPath = GetGuildFolderPath(guild) + "/" + TTS;
                 var search = await _lavaNode.SearchAsync(Victoria.Responses.Search.SearchType.Direct , Path.GetFullPath(TTSPath));
                 track = search.Tracks.FirstOrDefault();
                 if(player.PlayerState is PlayerState.Stopped)
@@ -131,11 +137,12 @@ namespace KrTTSBot.Handlers
 
             text = text.Substring(krLength);
             await JoinAsync(guild, voiceState, channel);
-            await MakeTTS(text);
+            await MakeTTS(text, guild);
 
             try
             {
                 var player = _lavaNode.GetPlayer(guild);
+                string TTSPath = GetGuildFolderPath(guild) + "/" + TTS;
                 LavaTrack track;
                 var search = await _lavaNode.SearchAsync(Victoria.Responses.Search.SearchType.Direct, Path.GetFullPath(TTSPath));
                 track = search.Tracks.FirstOrDefault();
@@ -183,6 +190,11 @@ namespace KrTTSBot.Handlers
                     else return;
                 }
             }
+        }
+
+        private static string GetGuildFolderPath(IGuild guild)
+        {
+            return ResourcesFolder + "/" + guild.Id.ToString();
         }
 
     }
