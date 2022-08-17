@@ -28,8 +28,37 @@ namespace KrTTSBot.Handlers
 
             _client.Ready += OnReady;
             _client.MessageReceived += OnMessageReceived;
+            _client.UserVoiceStateUpdated += OnUserVoiceStateUpdated;
             return Task.CompletedTask;
         }
+
+        private static async Task OnUserVoiceStateUpdated(SocketUser user, SocketVoiceState before, SocketVoiceState after)
+        {
+            if (before.VoiceChannel is null) return;
+            else if (!_lavaNode.HasPlayer(before.VoiceChannel.Guild)) return;
+            else if (_lavaNode.HasPlayer(before.VoiceChannel.Guild))
+            {
+
+                var player = _lavaNode.GetPlayer(before.VoiceChannel.Guild);
+                var vc = player.VoiceChannel as SocketVoiceChannel;
+                if (vc.ConnectedUsers.Count == 1)
+                {
+                    try
+                    {
+                        if (player.PlayerState is Victoria.Enums.PlayerState.Playing) await player.StopAsync();
+                        await _lavaNode.LeaveAsync(player.VoiceChannel);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"ERROR {ex.Message}");
+                    }
+                }
+                
+        }
+            return;                  
+        }
+
+
         private static async Task OnMessageReceived(SocketMessage msg)
         {
 
@@ -61,9 +90,7 @@ namespace KrTTSBot.Handlers
                 if (result.Error == CommandError.UnknownCommand) return;
             }
 
-        }
-
-    
+        } 
 
         private static async Task OnReady()
         {
@@ -81,6 +108,7 @@ namespace KrTTSBot.Handlers
             await _client.SetGameAsync($"{ConfigHandler.Config.KrPrefix} \"메시지\" 로 말하기 / Prefix: {ConfigHandler.Config.Prefix}",
                 streamUrl: null, ActivityType.Playing);
         }
+
 
     }
 }
