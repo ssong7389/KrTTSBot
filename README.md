@@ -10,8 +10,17 @@ Amazon Polly와 Lavalink를 이용한 Discord TTS 봇입니다.
 - [AWSSDK.Polly](https://www.nuget.org/packages/AWSSDK.Polly) 3.7.7.7
 
 ## Commands
-
-
+Prefix, KrPrefix로 사용할 수 있는 명령어(Command)목록입니다.  
+Prefix는 기본적인 명령어 사용을 위한 문자입니다. KrPrefix는 TTS 명령어를 한/영 변환없이 그리고 Prefix없이 사용하기 위한 Prefix입니다.  
+둘 다 `Config.json` 에서 원하는 문자로 지정할 수 있습니다. 참고로 제가 지정한 Prefix는 `~`, KrPrefix는 `말ㄹ`입니다.  
+    
+`help`, `도움`: 봇 사용법과 명령어에 대한 설명을 보여줍니다.  
+`tts`: TTS 명령어입니다.  
+`말ㄹ(KrPrefix)`: 기본 Prefix 없이 사용가능한 TTS 명령어입니다. Config에서 KrPrefix를 변경해 원하는 문자로 지정할 수 있습니다.  
+`join`,`드루와`: 음성채널 참가 명령어입니다. 굳이 사용하지 않고 tts 명령어를 사용하면 봇이 알아서 참가합니다.  
+`leave`,`나가`: 음성채널 연결끊기 명령어입니다. 봇을 사용하지 않는 경우에 음성채널에서 나가게 하기 위한 명령어입니다.  
+`stop`,`멈춰`: TTS 재생 정지 명령어입니다. 너무 길거나 듣기 싫은 TTS가 재생될 때 사용하기 위한 명령어입니다.  
+  
 
 ## Amazon Polly 사용법
 Amazon Polly를 사용하려면 AccessKeyID와 SecretAccessKey가 필요합니다.  
@@ -50,7 +59,10 @@ AWSAccessKeyId와 AWSSecretKey는 Amazon Web Service에서 받은 Id와 Key를 �
 이제 프로그램을 실행하면 봇이 실행됩니다. lavalink를 켜두지 않으면 음성관련 기능이 작동하지 않으니 봇 실행전에 반드시 켜줘야 합니다.  
 
 
-## Update할 내용
-- Readme에 Commnd 설명 및 봇 작동방식 추가
+## Update 할 내용
 - 봇이 음성 채널에 참가해 있을 때 음성채널에 참가하지 않은 유저가 TTS 사용시 음성채널에 참가하라는 메세지는 출력되지만 TTS 명령어가 실행되는 문제 수정  
+- 봇 서버에 올리기
+- 봇 켜질 때 알림 기능
+- 봇 변경사항 알림 기능
+- 개발자 전용 명령어(봇 logout/login 등)
 - 봇을 일정시간 사용하지 않으면 음성채널에서 자동으로 나가게 하는 기능 추가
