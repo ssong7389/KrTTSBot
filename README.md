@@ -60,7 +60,6 @@ AWSAccessKeyId와 AWSSecretKey는 Amazon Web Service에서 받은 Id와 Key를 �
 
 
 ## Update 할 내용
-- 봇이 음성 채널에 참가해 있을 때 음성채널에 참가하지 않은 유저가 TTS 사용시 음성채널에 참가하라는 메세지는 출력되지만 TTS 명령어가 실행되는 문제 수정  
 - 봇 서버에 올리기
 - 봇 켜질 때 알림 기능
 - 봇 변경사항 알림 기능
