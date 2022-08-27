@@ -44,7 +44,7 @@ namespace KrTTSBot.Handlers
                     {
                         aliases += alias;
                         if (alias != c.Aliases.Last())
-                            aliases += " / ";
+                            aliases += ", ";
                     }
                     embedBuilder.AddField(aliases, c.Remarks, false);
                 }    
