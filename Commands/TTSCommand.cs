@@ -39,10 +39,6 @@ namespace KrTTSBot.Commands
                 Context.Channel as ITextChannel);
         }
 
-
-
-
-
         [Command("stop")]
         [Alias("멈춰")]
         [Remarks("TTS 재생을 중단합니다.")]

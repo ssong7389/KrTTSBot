@@ -3,7 +3,7 @@ using Discord.Commands;
 
 namespace KrTTSBot.Commands
 {
-    public class TextCommnad :ModuleBase<SocketCommandContext>
+    public class TextCommand :ModuleBase<SocketCommandContext>
     {
         [Command("help")]
         [Alias("도움")]
