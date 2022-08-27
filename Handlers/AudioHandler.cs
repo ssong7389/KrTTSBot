@@ -109,7 +109,32 @@ namespace KrTTSBot.Handlers
         public static async Task PlayAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel, string text)
         {
 
-            await JoinAsync(guild, voiceState, channel);
+            if (voiceState.VoiceChannel is null)
+            {
+                await channel.SendMessageAsync("음성 채널에 먼저 참가해주세요.");
+                return;
+            }
+            else
+            {
+                if (!_lavaNode.HasPlayer(guild))
+                {
+                    try
+                    {
+                        await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
+                    }
+                }
+                else if (voiceState.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
+                {
+                    await channel.SendMessageAsync("다른 음성 채널에서 사용 중입니다.");
+                    return;
+                }
+            }
+
             await MakeTTS(text, guild);
 
             try
@@ -136,7 +161,31 @@ namespace KrTTSBot.Handlers
         {
 
             text = text.Substring(krLength);
-            await JoinAsync(guild, voiceState, channel);
+            if (voiceState.VoiceChannel is null)
+            {
+                await channel.SendMessageAsync("음성 채널에 먼저 참가해주세요.");
+                return;
+            }
+            else
+            {
+                if (!_lavaNode.HasPlayer(guild))
+                {
+                    try
+                    {
+                        await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
+                    }
+                }
+                else if (voiceState.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
+                {
+                    await channel.SendMessageAsync("다른 음성 채널에서 사용 중입니다.");
+                    return;
+                }
+            }
             await MakeTTS(text, guild);
 
             try
