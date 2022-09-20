@@ -2,7 +2,9 @@
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using System.Timers;
 using Victoria;
+using Victoria.EventArgs;
 
 namespace KrTTSBot.Handlers
 {
@@ -29,6 +31,49 @@ namespace KrTTSBot.Handlers
             _client.Ready += OnReady;
             _client.MessageReceived += OnMessageReceived;
             _client.UserVoiceStateUpdated += OnUserVoiceStateUpdated;
+            _lavaNode.OnTrackEnded += OnLavaTrackEnded;
+            _lavaNode.OnTrackStarted += OnLavaTrackStarted;
+
+            return Task.CompletedTask;
+        }
+
+
+        private static Task OnLavaTrackStarted(TrackStartEventArgs arg)
+        {
+            ulong guildId = arg.Player.VoiceChannel.GuildId;
+            ConnectionTimerHandler.StopTimer(guildId);
+            return Task.CompletedTask;
+        }
+
+        private static Task OnLavaTrackEnded(TrackEndedEventArgs arg)
+        {
+            ulong guildId = arg.Player.VoiceChannel.GuildId;
+            System.Timers.Timer ConnectionTimer = new System.Timers.Timer();
+            ConnectionTimer.Interval = 300 * 1000;
+            ConnectionTimer.Enabled = false;
+            ConnectionTimer.Elapsed += async (s, e) =>
+            {
+                ConnectionTimer.Stop();
+                var voiceChannel = arg.Player.VoiceChannel;
+                if (voiceChannel != null)
+                {
+                    await _lavaNode.LeaveAsync(voiceChannel);
+                }
+                else
+                {
+                    ConnectionTimer.Dispose();
+                }
+
+            };
+            if (!ConnectionTimerHandler.guildConnecionTimer.ContainsKey(guildId))
+            {                
+                ConnectionTimerHandler.guildConnecionTimer.Add(guildId, ConnectionTimer);
+            }
+            else
+            {
+                ConnectionTimerHandler.guildConnecionTimer[guildId] = ConnectionTimer;
+            }
+            ConnectionTimerHandler.StartTimer(guildId);
             return Task.CompletedTask;
         }
 
