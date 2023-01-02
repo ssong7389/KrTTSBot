@@ -44,7 +44,8 @@ https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/cli-configure-files.html
 우선 `lavalink.jar` 파일이 필요하고, jar파일을 실행하기 위해 `Java 13`버전 이상이 필요합니다.  
 `lavalink.jar`파일은 [releases](https://github.com/freyacodes/Lavalink/releases) 에서 다운로드할 수 있습니다. 
  
-Java 환경 변수 설정
+Java 환경 변수 설정 
+https://coding-factory.tistory.com/838
 
 또 Lavalink server에 연결하기 위해 `application.yml`이 필요합니다. 
 jar 파일과 마찬가지로 Lavalink github에서 [예시 파일](https://github.com/freyacodes/Lavalink/blob/master/LavalinkServer/application.yml.example)을 확인할 수 있습니다.  
