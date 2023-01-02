@@ -34,11 +34,18 @@ AccessKeyID와 SecretAccessKey에 대한 부분은 [AccessKey 관련 문서](htt
 
 위 내용이 정리된 사이트(https://kaki104.tistory.com/591)
 
+AWS CLI
+https://awscli.amazonaws.com/AWSCLIV2.msi
+credentials 파일 생성
+https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/cli-configure-files.html
+
 ## Lavalink 사용법
 몇 가지 사전 준비를 거쳐 Lavalink를 통해 음성을 재생할 수 있습니다.  
 우선 `lavalink.jar` 파일이 필요하고, jar파일을 실행하기 위해 `Java 13`버전 이상이 필요합니다.  
-`lavalink.jar`파일은 [releases](https://github.com/freyacodes/Lavalink/releases) 에서 다운로드할 수 있습니다.  
-  
+`lavalink.jar`파일은 [releases](https://github.com/freyacodes/Lavalink/releases) 에서 다운로드할 수 있습니다. 
+ 
+Java 환경 변수 설정
+
 또 Lavalink server에 연결하기 위해 `application.yml`이 필요합니다. 
 jar 파일과 마찬가지로 Lavalink github에서 [예시 파일](https://github.com/freyacodes/Lavalink/blob/master/LavalinkServer/application.yml.example)을 확인할 수 있습니다.  
 이 봇은 tts mp3 파일을 다운받아 로컬 폴더에서 재생하므로 `sources:` 부분에서 `local: true`로 변경하여 사용합니다.  
