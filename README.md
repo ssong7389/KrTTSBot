@@ -8,6 +8,10 @@ Amazon Polly와 Lavalink를 이용한 Discord TTS 봇입니다.
 - [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection/7.0.0-preview.7.22375.6) 6.0.0
 - [AWSSDK.Core](https://www.nuget.org/packages/AWSSDK.Core) 3.7.12.21
 - [AWSSDK.Polly](https://www.nuget.org/packages/AWSSDK.Polly) 3.7.7.7
+ 
+## 프레임워크(Framework)
+`.NET 6.0` 사용 
+- Visual Studio 2019는 .NET 6.0을 지원하지 않아 Visual Studio 2022 필요 
 
 ## Commands
 Prefix, KrPrefix로 사용할 수 있는 명령어(Command)목록입니다.  
