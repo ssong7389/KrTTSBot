@@ -40,5 +40,7 @@ namespace KrTTSBot.Handlers
         public string AWSAccessKeyId { get; private set; }
         [JsonProperty("AWSSecretKey")]
         public string AWSSecretKey { get; private set; }
+        [JsonProperty("devId")]
+        public string DevId { get; private set; }
     }
 }
