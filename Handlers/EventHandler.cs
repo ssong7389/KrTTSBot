@@ -79,11 +79,11 @@ namespace KrTTSBot.Handlers
 
         private static async Task OnUserVoiceStateUpdated(SocketUser user, SocketVoiceState before, SocketVoiceState after)
         {
+            if (user.IsBot) return;
             if (before.VoiceChannel is null) return;
             else if (!_lavaNode.HasPlayer(before.VoiceChannel.Guild)) return;
             else if (_lavaNode.HasPlayer(before.VoiceChannel.Guild))
             {
-
                 var player = _lavaNode.GetPlayer(before.VoiceChannel.Guild);
                 var vc = player.VoiceChannel as SocketVoiceChannel;
                 if (vc.ConnectedUsers.Count == 1)
@@ -91,6 +91,7 @@ namespace KrTTSBot.Handlers
                     try
                     {
                         if (player.PlayerState is Victoria.Enums.PlayerState.Playing) await player.StopAsync();
+                        Console.WriteLine("Left by voicestateupdated");
                         await _lavaNode.LeaveAsync(player.VoiceChannel);
                     }
                     catch (Exception ex)
@@ -99,7 +100,7 @@ namespace KrTTSBot.Handlers
                     }
                 }
                 
-        }
+            }
             return;                  
         }
 
@@ -150,7 +151,7 @@ namespace KrTTSBot.Handlers
 
             Console.WriteLine($"[{DateTime.Now}\t(READY)\tBot is Ready");
             await _client.SetStatusAsync(Discord.UserStatus.Online);
-            await _client.SetGameAsync($"{ConfigHandler.Config.KrPrefix} \"메시지\" 로 말하기 / Prefix: {ConfigHandler.Config.Prefix}",
+            await _client.SetGameAsync($"사용법: {ConfigHandler.Config.Prefix}도움 또는 {ConfigHandler.Config.Prefix}help",
                 streamUrl: null, ActivityType.Playing);
         }
 
