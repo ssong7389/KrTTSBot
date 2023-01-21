@@ -8,6 +8,10 @@ Amazon Polly와 Lavalink를 이용한 Discord TTS 봇입니다.
 - [Microsoft.Extensions.DependencyInjection](https://www.nuget.org/packages/Microsoft.Extensions.DependencyInjection/7.0.0-preview.7.22375.6) 6.0.0
 - [AWSSDK.Core](https://www.nuget.org/packages/AWSSDK.Core) 3.7.12.21
 - [AWSSDK.Polly](https://www.nuget.org/packages/AWSSDK.Polly) 3.7.7.7
+ 
+## 프레임워크(Framework)
+`.NET 6.0` 사용  
+Visual Studio 2019는 .NET 6.0을 지원하지 않아 Visual Studio 2022 필요 
 
 ## Commands
 Prefix, KrPrefix로 사용할 수 있는 명령어(Command)목록입니다.  
@@ -20,6 +24,8 @@ Prefix는 기본적인 명령어 사용을 위한 문자입니다. KrPrefix는 T
 `join`,`드루와`: 음성채널 참가 명령어입니다. 굳이 사용하지 않고 tts 명령어를 사용하면 봇이 알아서 참가합니다.  
 `leave`,`나가`: 음성채널 연결끊기 명령어입니다. 봇을 사용하지 않는 경우에 음성채널에서 나가게 하기 위한 명령어입니다.  
 `stop`,`멈춰`: TTS 재생 정지 명령어입니다. 너무 길거나 듣기 싫은 TTS가 재생될 때 사용하기 위한 명령어입니다.  
+
+추가적으로 5분간 사용하지 않으면 음성채널에서 자동으로 나가는 기능을 추가했습니다.
   
 
 ## Amazon Polly 사용법
@@ -32,11 +38,19 @@ AccessKeyID와 SecretAccessKey에 대한 부분은 [AccessKey 관련 문서](htt
 
 위 내용이 정리된 사이트(https://kaki104.tistory.com/591)
 
+AWS CLI
+https://awscli.amazonaws.com/AWSCLIV2.msi
+credentials 파일 생성
+https://docs.aws.amazon.com/ko_kr/cli/latest/userguide/cli-configure-files.html
+
 ## Lavalink 사용법
 몇 가지 사전 준비를 거쳐 Lavalink를 통해 음성을 재생할 수 있습니다.  
 우선 `lavalink.jar` 파일이 필요하고, jar파일을 실행하기 위해 `Java 13`버전 이상이 필요합니다.  
-`lavalink.jar`파일은 [releases](https://github.com/freyacodes/Lavalink/releases) 에서 다운로드할 수 있습니다.  
-  
+`lavalink.jar`파일은 [releases](https://github.com/freyacodes/Lavalink/releases) 에서 다운로드할 수 있습니다. 
+ 
+Java 환경 변수 설정 
+https://coding-factory.tistory.com/838
+
 또 Lavalink server에 연결하기 위해 `application.yml`이 필요합니다. 
 jar 파일과 마찬가지로 Lavalink github에서 [예시 파일](https://github.com/freyacodes/Lavalink/blob/master/LavalinkServer/application.yml.example)을 확인할 수 있습니다.  
 이 봇은 tts mp3 파일을 다운받아 로컬 폴더에서 재생하므로 `sources:` 부분에서 `local: true`로 변경하여 사용합니다.  
@@ -64,4 +78,9 @@ AWSAccessKeyId와 AWSSecretKey는 Amazon Web Service에서 받은 Id와 Key를 �
 - 봇 켜질 때 알림 기능
 - 봇 변경사항 알림 기능
 - 개발자 전용 명령어(봇 logout/login 등)
-- 봇을 일정시간 사용하지 않으면 음성채널에서 자동으로 나가게 하는 기능 추가
+
+## Bot 설계, 작동 방식  
+봇 제작의 토대가 된 영상: https://www.youtube.com/watch?v=K0UMmoyOqZI&t=1s&ab_channel=Koreanpanda345  
+위 영상을 튜토리얼로 제작하였습니다.  
+
+간략한 작동 방식 추가 예정
