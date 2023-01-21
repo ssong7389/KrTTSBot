@@ -14,7 +14,6 @@ namespace KrTTSBot.Handlers
         private static string ResourcesFolder = "Resources";
         private static string TTS = "tts.mp3";
 
-
         public static async Task JoinAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel)
         {
             if (voiceState.VoiceChannel is null)
@@ -42,9 +41,7 @@ namespace KrTTSBot.Handlers
                     return;
                 }
             }
-
         }
-
         public static async Task LeaveAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel)
         {
             if (voiceState.VoiceChannel is null) return;
@@ -65,10 +62,8 @@ namespace KrTTSBot.Handlers
                 return;
             }
         }
-
         public static async Task MakeTTS(string text, IGuild guild)
         {
-
             string AWSAccessKeyId = ConfigHandler.Config.AWSAccessKeyId;
             string AWSSecretKey = ConfigHandler.Config.AWSSecretKey;
             var pc = new AmazonPollyClient(AWSAccessKeyId, AWSSecretKey);
@@ -87,12 +82,13 @@ namespace KrTTSBot.Handlers
                 Console.WriteLine("Http Error");
                 return;
             }
-
+            Console.WriteLine("TTS made successfully.");
             string guildFolder = GetGuildFolderPath(guild);
             if (!Directory.Exists(guildFolder))
                 Directory.CreateDirectory(guildFolder);
 
             string TTSPath = guildFolder + "/" + TTS;
+            Console.WriteLine(TTSPath);
             if (File.Exists(TTSPath))
             {
                 File.Delete(TTSPath);
@@ -105,7 +101,6 @@ namespace KrTTSBot.Handlers
             await Task.CompletedTask;
             return;
         }
-
         public static async Task PlayAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel, string text)
         {
 
@@ -118,15 +113,7 @@ namespace KrTTSBot.Handlers
             {
                 if (!_lavaNode.HasPlayer(guild))
                 {
-                    try
-                    {
-                        await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
-                    }
+                    await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
                 }
                 else if (voiceState.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
                 {
@@ -134,9 +121,7 @@ namespace KrTTSBot.Handlers
                     return;
                 }
             }
-
             await MakeTTS(text, guild);
-
             try
             {
                 var player = _lavaNode.GetPlayer(guild);
@@ -144,8 +129,12 @@ namespace KrTTSBot.Handlers
                 string TTSPath = GetGuildFolderPath(guild) + "/" + TTS;
                 var search = await _lavaNode.SearchAsync(Victoria.Responses.Search.SearchType.Direct , Path.GetFullPath(TTSPath));
                 track = search.Tracks.FirstOrDefault();
-                if(player.PlayerState is PlayerState.Stopped)
+                if(player.PlayerState is PlayerState.Stopped || player.PlayerState is PlayerState.Paused)
                 {
+                    if (player.Queue.Count != 0)
+                    {
+                        player.Queue.Clear();
+                    }
                     player.Queue.Enqueue(track);
                 }
                 await player.PlayAsync(track);
@@ -159,7 +148,6 @@ namespace KrTTSBot.Handlers
 
         public static async Task PlayAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel, string text, int krLength)
         {
-
             text = text.Substring(krLength);
             if (voiceState.VoiceChannel is null)
             {
@@ -170,15 +158,7 @@ namespace KrTTSBot.Handlers
             {
                 if (!_lavaNode.HasPlayer(guild))
                 {
-                    try
-                    {
-                        await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
-                        return;
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
-                    }
+                    await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
                 }
                 else if (voiceState.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
                 {
@@ -188,8 +168,6 @@ namespace KrTTSBot.Handlers
             }
             await MakeTTS(text, guild);
 
-            try
-            {
                 var player = _lavaNode.GetPlayer(guild);
                 string TTSPath = GetGuildFolderPath(guild) + "/" + TTS;
                 LavaTrack track;
@@ -199,16 +177,8 @@ namespace KrTTSBot.Handlers
                 {
                     player.Queue.Enqueue(track);
                 }
-
                 await player.PlayAsync(track);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[{DateTime.Now}] {ex.Message}");
-                return;
-            }
         }
-
         public static async Task StopAsnyc(IGuild guild, IVoiceState voiceState, ITextChannel channel)
         {
             var player = _lavaNode.GetPlayer(guild);
@@ -240,11 +210,42 @@ namespace KrTTSBot.Handlers
                 }
             }
         }
-
         private static string GetGuildFolderPath(IGuild guild)
         {
-            return ResourcesFolder + "/" + guild.Id.ToString();
+            
+            string guildPath = Path.GetFullPath(ResourcesFolder) + "/" + guild.Id.ToString();
+            Console.WriteLine(guildPath);
+            return guildPath;
         }
 
+        public static async Task ChangeCannelAsync(IGuild guild, IVoiceState voiceState, ITextChannel channel)
+        {
+            if (!_lavaNode.HasPlayer(guild))
+            {
+                await channel.SendMessageAsync("사용 중이 아닙니다.");
+                return;
+            }
+            if (voiceState.VoiceChannel is null)
+            {
+                await channel.SendMessageAsync("음성 채널에 먼저 참가해주세요.");
+                return;
+            }
+            if (voiceState.VoiceChannel == _lavaNode.GetPlayer(guild).VoiceChannel)
+            {
+                await channel.SendMessageAsync("이미 같은 음성채널에서 사용하고 있어요.");
+                return;
+            }
+            else if(voiceState.VoiceChannel != _lavaNode.GetPlayer(guild).VoiceChannel)
+            {
+                var player = _lavaNode.GetPlayer(guild);
+                string msg = "``" + player.VoiceChannel.Name + "``에서 ``" + voiceState.VoiceChannel.Name + "``으로 이동했어요.";
+                if (player.PlayerState is PlayerState.Playing) await player.StopAsync();
+                await _lavaNode.LeaveAsync(player.VoiceChannel);
+
+                await _lavaNode.JoinAsync(voiceState.VoiceChannel, channel);
+               
+                await channel.SendMessageAsync(msg);
+            }
+        }
     }
 }
