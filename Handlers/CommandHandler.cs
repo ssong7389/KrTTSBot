@@ -10,12 +10,9 @@ namespace KrTTSBot.Handlers
         private static CommandService _commandService = ServiceHandler.GetService<CommandService>();
         private static DiscordSocketClient _client = ServiceHandler.GetService<DiscordSocketClient>();
 
-
         public static async Task LoadCommandAsync()
         {
             await _commandService.AddModulesAsync(Assembly.GetEntryAssembly(), ServiceHandler.ServiceProvider);
-            foreach (var command in _commandService.Commands)
-                Console.WriteLine($"Command {command.Name} loaded.");
         }
 
         public static async Task HelpCommandAsync(IGuild guild, ITextChannel channel)
@@ -33,14 +30,19 @@ namespace KrTTSBot.Handlers
             
             foreach (var c in _commandService.Commands)
             {
+                
                 if (c.Name == "말")
                 {
                     embedBuilder.AddField(Handlers.ConfigHandler.Config.KrPrefix, c.Remarks, false);
                 }
+                else if (Commands.PrivateTextCommand.CommandToHide.Contains(c.Name))
+                {
+                    continue;
+                }
                 else
                 {
-                    var aliases = string.Empty;
-                    foreach(var alias in c.Aliases)
+                    string aliases = string.Empty;
+                    foreach(string alias in c.Aliases)
                     {
                         aliases += alias;
                         if (alias != c.Aliases.Last())
@@ -51,7 +53,7 @@ namespace KrTTSBot.Handlers
                     
             }
             var footer = new EmbedFooterBuilder();
-            footer.WithText("\n사용법 예시: 말ㄹ 할 말 / ~tts 할 말 \n -> \'할 말\'이 TTS로 재생됩니다. (먼저 음성 채널에 입장은 필수)");
+            footer.WithText("\n사용법 예시: 말ㄹ 할 말, ~tts 할 말 \n -> \'할 말\'이 TTS로 재생됩니다. (먼저 음성 채널에 입장은 필수)");
             embedBuilder.WithFooter(footer);
             await channel.SendMessageAsync("", false, embedBuilder.Build());
         }
