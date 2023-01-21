@@ -1,8 +1,8 @@
 ﻿using Discord;
-using Victoria;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
+using Victoria;
 
 namespace KrTTSBot
 {
@@ -37,13 +37,12 @@ namespace KrTTSBot
         public async Task MainAsync()
         {
             if (string.IsNullOrWhiteSpace(Handlers.ConfigHandler.Config.Token)) return;
-
             await Handlers.CommandHandler.LoadCommandAsync();
             await Handlers.EventHandler.LoadCommands();
             await _client.LoginAsync(TokenType.Bot, Handlers.ConfigHandler.Config.Token);
             await _client.StartAsync();
-
             await Task.Delay(-1);
         }
+
     }
 }
