@@ -73,12 +73,6 @@ AWSAccessKeyId와 AWSSecretKey는 Amazon Web Service에서 받은 Id와 Key를 �
 이제 프로그램을 실행하면 봇이 실행됩니다. lavalink를 켜두지 않으면 음성관련 기능이 작동하지 않으니 봇 실행전에 반드시 켜줘야 합니다.  
 
 
-## Update 할 내용
-- 봇 서버에 올리기
-- 봇 켜질 때 알림 기능
-- 봇 변경사항 알림 기능
-- 개발자 전용 명령어(봇 logout/login 등)
-
 ## Bot 설계, 작동 방식  
 봇 제작의 토대가 된 영상: https://www.youtube.com/watch?v=K0UMmoyOqZI&t=1s&ab_channel=Koreanpanda345  
 위 영상을 튜토리얼로 제작하였습니다.  
